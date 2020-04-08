@@ -2,10 +2,10 @@
 #include "../../../modules/task_1/guschin_a_cc_labeling/cc_labeling.h"
 #include <vector>
 
-std::vector<std::vector<int>> Labeling(
+std::vector<std::vector<std::int32_t>> Labeling(
     const std::vector<std::vector<std::int8_t>>& pic) {
-  std::vector<std::vector<int>> res(pic.size(),
-                                    std::vector<int>(pic[0].size(), 0));
+  std::vector<std::vector<std::int32_t>> res(
+      pic.size(), std::vector<int>(pic[0].size(), 0));
   int w = pic.size();
   int h = pic[0].size();
   int comp_counter = 1;
@@ -45,7 +45,7 @@ std::vector<std::vector<int>> Labeling(
   return res;
 }
 
-void Merge(std::vector<std::vector<int>>* ptr, int pr_num, int req_num,
+void Merge(std::vector<std::vector<std::int32_t>>* ptr, int pr_num, int req_num,
            int end_x, int end_y) {
   int w = (*ptr).size();
   int h = (*ptr)[0].size();
