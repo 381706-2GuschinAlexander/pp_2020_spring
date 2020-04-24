@@ -9,7 +9,7 @@
 std::vector<std::vector<std::int32_t>> Labeling_omp(
     const std::vector<std::vector<std::int8_t>>& pic) {
   std::vector<std::vector<std::int32_t>> res(
-      pic.size(), std::vector<int>(pic[0].size(), 0));
+      pic.size(), std::vector<std::int32_t>(pic[0].size(), 0));
 
   std::vector<std::int32_t> sec_start;
   std::int32_t h = pic.size();
@@ -145,4 +145,52 @@ bool IsLabeled(const std::vector<std::vector<std::int32_t>>& A) {
     }
   }
   return true;
+}
+
+bool IsComparable(const std::vector<std::vector<std::int32_t>>& single_thr,
+                  const std::vector<std::vector<std::int32_t>>& multi_thr) {
+  return false;
+}
+
+std::vector<std::vector<std::int32_t>> Labeling(
+    const std::vector<std::vector<std::int8_t>>& pic) {
+  std::vector<std::vector<std::int32_t>> res(
+      pic.size(), std::vector<std::int32_t>(pic[0].size(), 0));
+  int h = pic.size();
+  int w = pic[0].size();
+  int comp_counter = 1;
+
+  for (int i = 0; i < h; ++i)
+    for (int j = 0; j < w; ++j) {
+      int left_v = 0;
+      int up_v = 0;
+      int sel_v = 0;
+
+      if (i > 0) up_v = pic[i - 1][j];
+      if (j > 0) left_v = pic[i][j - 1];
+      sel_v = pic[i][j];
+
+      if (sel_v == 0) {
+        continue;
+      } else if (left_v == 1 && up_v == 1) {
+        if (res[i - 1][j] == res[i][j - 1]) {
+          res[i][j] = res[i - 1][j];
+        } else {
+          int min =
+              (res[i - 1][j] < res[i][j - 1] ? res[i - 1][j] : res[i][j - 1]);
+          int max =
+              (res[i - 1][j] > res[i][j - 1] ? res[i - 1][j] : res[i][j - 1]);
+          Merge_omp(&res, 0, max, min, i, j);
+          res[i][j] = min;
+        }
+      } else if (left_v == 1 && up_v == 0) {
+        res[i][j] = res[i][j - 1];
+      } else if (left_v == 0 && up_v == 1) {
+        res[i][j] = res[i - 1][j];
+      } else if (left_v == 0 && up_v == 0) {
+        res[i][j] = comp_counter;
+        comp_counter++;
+      }
+    }
+  return res;
 }

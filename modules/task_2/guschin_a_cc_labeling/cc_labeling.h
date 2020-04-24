@@ -9,7 +9,7 @@
 #include <ctime>
 
 
-std::vector<std::vector<int>> Labeling_omp(
+std::vector<std::vector<std::int32_t>> Labeling_omp(
     const std::vector<std::vector<std::int8_t>>& pic);
 void Merge_omp(std::vector<std::vector<int>>* ptr, std::int32_t str_row,
                std::int32_t pr_num, std::int32_t req_num, std::int32_t end_x,
@@ -17,6 +17,10 @@ void Merge_omp(std::vector<std::vector<int>>* ptr, std::int32_t str_row,
 void Print(const std::vector<std::vector<std::int32_t>>& A);
 void Fill_random(std::vector<std::vector<std::int8_t>>* ptr);
 bool IsLabeled(const std::vector<std::vector<std::int32_t>>& A);
+bool IsComparable(const std::vector<std::vector<std::int32_t>>& single_thr,
+                  const std::vector<std::vector<std::int32_t>>& multi_thr);
+std::vector<std::vector<std::int32_t>> Labeling(
+    const std::vector<std::vector<std::int8_t>>& pic);
 
 
 #endif  // MODULES_TASK_2_GUSCHIN_A_CC_LABELING_CC_LABELING_H_
