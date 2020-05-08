@@ -5,6 +5,7 @@
 #include "opencv2/highgui.hpp"
 #include "opencv2/opencv.hpp"
 #include <iostream>
+#include <chrono>
 #include "../../../modules/task_2/guschin_a_cc_labeling/cc_labeling.h"
 
 std::vector<std::vector<std::int8_t>> Convert(const cv::Mat& image) {
@@ -31,11 +32,11 @@ void Show(const std::vector<std::vector<std::int32_t>>& v_image) {
         iter_color[2] = 255;
       } else {
         std::int32_t color = v_image[i][j];
-        iter_color[0] = 255 - (v_image[i][j] * 10) % 255;
+        iter_color[0] = (v_image[i][j] * 7) % 255;
             //(v_image[i][j] * v_image[i][j] * v_image[i][j]) % 256;
-        iter_color[1] = 255 - (v_image[i][j] * 20) % 255;
+        iter_color[1] = (v_image[i][j] * 29) % 255;
             //(v_image[i][j] * v_image[i][j]) % 256;
-        iter_color[2] = 255 - (v_image[i][j] * 30) % 255;
+        iter_color[2] = (v_image[i][j] * 53) % 255;
             //(v_image[i][j]) % 256;
       }
       image.at<cv::Vec3b>(i, j) = iter_color;
@@ -51,7 +52,13 @@ std::int32_t main() {
   std::string source = "C:\\Users\\igush\\Desktop\\Paint\\test.bmp"; 
   cv::Mat Image = cv::imread(source, 1);
   std::vector<std::vector<std::int8_t>> bin_matrix = Convert(Image);
+
+  auto start = omp_get_wtime();
   std::vector<std::vector<std::int32_t>> result = Labeling_omp(bin_matrix);
+  auto end = omp_get_wtime();
+
+  std::cout << "required time: " << (end - start);
+
   Show(result);
   return 0; 
 }
