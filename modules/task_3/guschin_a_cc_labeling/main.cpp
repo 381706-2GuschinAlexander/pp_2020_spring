@@ -1,53 +1,62 @@
 // Copyright 2020 Guschin Alexander
-#include <gtest/gtest.h>
+// TBB lab
+#include <chrono>
+#include <iostream>
 #include <vector>
-#include "../../../modules/task_3/guschin_a_cc_labeling/cc_labeling.h"
+#include "../../task_3/guschin_a_cc_labeling/cc_labeling.h"
+#include "opencv2/core.hpp"
+#include "opencv2/highgui.hpp"
+#include "opencv2/opencv.hpp"
 
-TEST(CC_Labeling_tbb, Can_find_invalid_labeling) {
-  std::vector<std::vector<std::int32_t>> A(4, std::vector<std::int32_t>(4));
-  A = {{1, 1, 1, 0},
-       {0, 1, 2, 2},
-       {0, 1, 0, 2},
-       {1, 1, 0, 1}};
-  EXPECT_EQ(IsLabeled(A), false);
+std::vector<std::vector<std::int8_t>> Convert(const cv::Mat& image) {
+  std::vector<std::vector<std::int8_t>> result_matrix(
+      image.rows, std::vector<std::int8_t>(image.cols, 0));
+  for (int i = 0; i < image.rows; ++i)
+    for (int j = 0; j < image.cols; ++j) {
+      cv::Vec3b iter_color = image.at<cv::Vec3b>(i, j);
+      if (iter_color[0] == 0 && iter_color[1] == 0 && iter_color[2] == 0)
+        result_matrix[i][j] = 1;
+    }
+
+  return result_matrix;
 }
 
-TEST(CC_Labeling_tbb, Can_find_valid_labeling) {
-  std::vector<std::vector<std::int32_t>> A(4, std::vector<std::int32_t>(4));
-  A = {{1, 1, 1, 0},
-       {0, 0, 1, 0},
-       {0, 0, 0, 2},
-       {2, 2, 2, 2}};
-  EXPECT_EQ(IsLabeled(A), true);
+void Show(const std::vector<std::vector<std::int32_t>>& v_image) {
+  cv::Mat image = cv::Mat::zeros(v_image.size(), v_image[0].size(), CV_8UC3);
+  for (std::int32_t i = 0; i < v_image.size(); ++i)
+    for (std::int32_t j = 0; j < v_image[0].size(); ++j) {
+      cv::Vec3b iter_color;
+      if (v_image[i][j] == 0) {
+        iter_color[0] = 255;
+        iter_color[1] = 255;
+        iter_color[2] = 255;
+      } else {
+        std::int32_t color = v_image[i][j];
+        iter_color[0] = (v_image[i][j] * 7) % 255;
+        //(v_image[i][j] * v_image[i][j] * v_image[i][j]) % 256;
+        iter_color[1] = (v_image[i][j] * 29) % 255;
+        //(v_image[i][j] * v_image[i][j]) % 256;
+        iter_color[2] = (v_image[i][j] * 53) % 255;
+        //(v_image[i][j]) % 256;
+      }
+      image.at<cv::Vec3b>(i, j) = iter_color;
+    }
+
+  imshow("Display Window", image);
+  cv::waitKey(0);
 }
 
-TEST(CC_Labeling_tbb, No_Throw) {
-  std::vector<std::vector<std::int8_t>> A(4, std::vector<std::int8_t>(4));
-  A = {{1, 1, 1, 0},
-       {0, 1, 0, 1},
-       {0, 1, 0, 1},
-       {1, 1, 0, 1}};
-  ASSERT_NO_THROW(Labeling_tbb(A));
-}
+std::int32_t main() {
+  std::string source = "C:\\Users\\igush\\Desktop\\Paint\\test.bmp";
+  cv::Mat Image = cv::imread(source, 1);
+  std::vector<std::vector<std::int8_t>> bin_matrix = Convert(Image);
 
-TEST(CC_Labeling_tbb, Can_lable_omp_with_premade_pic) {
-  std::vector<std::vector<std::int8_t>> A(8, std::vector<std::int8_t>(4));
-  A = {{1, 1, 1, 0},
-       {0, 1, 0, 1},
-       {1, 1, 0, 1},
-       {1, 0, 1, 1},
-       {1, 0, 0, 0},
-       {1, 1, 1, 1},
-       {1, 0, 0, 1},
-       {1, 1, 0, 1}};
-  std::vector<std::vector<std::int32_t>> res = Labeling_tbb(A);
-  EXPECT_EQ(IsLabeled(res), true);
-}
+  auto start = omp_get_wtime();
+  std::vector<std::vector<std::int32_t>> result = Labeling_tbb(bin_matrix);
+  auto end = omp_get_wtime();
 
-TEST(CC_Labeling_tbb, Can_lable_omp_with_2500_pixel) {
-  std::vector<std::vector<std::int8_t>> A(50, std::vector<std::int8_t>(50));
-  Fill_random(&A);
-  std::vector<std::vector<std::int32_t>>  res = Labeling_tbb(A);
-  EXPECT_EQ(IsLabeled(res), true);
-}
+  std::cout << "required time: " << (end - start);
 
+  Show(result);
+  return 0;
+}

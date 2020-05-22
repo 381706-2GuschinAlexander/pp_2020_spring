@@ -12,14 +12,6 @@ include( "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Configure.cmake" )
 
 ######openCV
 
-find_package(OpenCV REQUIRED )
-
-INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/include )
-INCLUDE_DIRECTORIES( ${OpenCV_INCLUDE_DIRS} )
-link_directories( ${CMAKE_BINARY_DIR}/bin)
-link_directories(${OpenCV_LIB_DIR})
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
-
 ############################### GTest ###############################
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/gtest")
 include_directories("${CMAKE_SOURCE_DIR}/3rdparty/gtest/googletest/include")

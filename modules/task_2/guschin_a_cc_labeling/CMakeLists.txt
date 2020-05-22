@@ -20,3 +20,11 @@ if ( USE_OMP )
 else( USE_OMP )
     message( STATUS "-- ${ProjectId} - NOT BUILD!"  )
 endif( USE_OMP )
+
+if (USE_OPENCV)
+      add_definitions(-DOPENCV=1)
+      find_package( OpenCV REQUIRED )
+      include_directories("${CMAKE_CURRENT_SOURCE_DIR}" ${OpenCV_INCLUDE_DIRS})
+      target_link_libraries(${ProjectId} ${OpenCV_LIBS})
+    endif( USE_OPENCV)
+	

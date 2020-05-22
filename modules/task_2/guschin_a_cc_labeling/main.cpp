@@ -6,7 +6,8 @@
 #include "opencv2/opencv.hpp"
 #include <iostream>
 #include <chrono>
-#include "../../../modules/task_2/guschin_a_cc_labeling/cc_labeling.h"
+#include "../../task_2/guschin_a_cc_labeling/cc_labeling.h"
+
 
 std::vector<std::vector<std::int8_t>> Convert(const cv::Mat& image) {
   std::vector<std::vector<std::int8_t>> result_matrix(
@@ -52,6 +53,7 @@ std::int32_t main() {
   std::string source = "C:\\Users\\igush\\Desktop\\Paint\\test.bmp"; 
   cv::Mat Image = cv::imread(source, 1);
   std::vector<std::vector<std::int8_t>> bin_matrix = Convert(Image);
+
 
   auto start = omp_get_wtime();
   std::vector<std::vector<std::int32_t>> result = Labeling_omp(bin_matrix);
