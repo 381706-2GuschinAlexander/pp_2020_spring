@@ -17,7 +17,7 @@ std::vector<std::vector<std::int32_t>> Labeling_tbb(
   std::int32_t comp_counter = 1;
   tbb::task_scheduler_init init;
   tbb::parallel_for(
-      tbb::blocked_range<size_t>(0, h, 200),
+      tbb::blocked_range<size_t>(0, h, 175),
       [&res, pic, &comp_counter](tbb::blocked_range<size_t> r) {
         std::int32_t start = r.begin();
         std::int32_t end = r.end();

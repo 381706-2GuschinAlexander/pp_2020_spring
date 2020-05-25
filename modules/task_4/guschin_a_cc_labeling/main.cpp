@@ -33,11 +33,8 @@ void Show(const std::vector<std::vector<std::int32_t>>& v_image) {
       } else {
         std::int32_t color = v_image[i][j];
         iter_color[0] = (v_image[i][j] * 7) % 255;
-        //(v_image[i][j] * v_image[i][j] * v_image[i][j]) % 256;
         iter_color[1] = (v_image[i][j] * 29) % 255;
-        //(v_image[i][j] * v_image[i][j]) % 256;
         iter_color[2] = (v_image[i][j] * 53) % 255;
-        //(v_image[i][j]) % 256;
       }
       image.at<cv::Vec3b>(i, j) = iter_color;
     }
@@ -51,11 +48,12 @@ std::int32_t main() {
   cv::Mat Image = cv::imread(source, 1);
   std::vector<std::vector<std::int8_t>> bin_matrix = Convert(Image);
 
-  auto start = omp_get_wtime();
+  auto start = std::chrono::system_clock::now();
   std::vector<std::vector<std::int32_t>> result = Labeling_std(bin_matrix);
-  auto end = omp_get_wtime();
+  auto end = std::chrono::system_clock::now();
+  std::chrono::duration<double, std::milli> a(end - start);
+  std::cout << "required time: " << a.count() / 1000;
 
-  std::cout << "required time: " << (end - start);
 
   Show(result);
   return 0;

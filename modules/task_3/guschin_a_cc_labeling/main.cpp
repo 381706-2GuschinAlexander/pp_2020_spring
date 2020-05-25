@@ -7,6 +7,7 @@
 #include "opencv2/core.hpp"
 #include "opencv2/highgui.hpp"
 #include "opencv2/opencv.hpp"
+#include "tbb/tbb.h"
 
 std::vector<std::vector<std::int8_t>> Convert(const cv::Mat& image) {
   std::vector<std::vector<std::int8_t>> result_matrix(
@@ -51,11 +52,11 @@ std::int32_t main() {
   cv::Mat Image = cv::imread(source, 1);
   std::vector<std::vector<std::int8_t>> bin_matrix = Convert(Image);
 
-  auto start = omp_get_wtime();
+  auto start = tbb::tick_count::now();
   std::vector<std::vector<std::int32_t>> result = Labeling_tbb(bin_matrix);
-  auto end = omp_get_wtime();
+  auto end = tbb::tick_count::now();
 
-  std::cout << "required time: " << (end - start);
+  std::cout << "required time: " << (end - start).seconds();
 
   Show(result);
   return 0;

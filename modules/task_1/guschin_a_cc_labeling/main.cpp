@@ -1,85 +1,59 @@
 // Copyright 2020 Guschin Alexander
-#include <gtest/gtest.h>
+// Seq
+#include <chrono>
+#include <iostream>
 #include <vector>
-#include "../../../modules/task_1/guschin_a_cc_labeling/cc_labeling.h"
+#include "../../task_1/guschin_a_cc_labeling/cc_labeling.h"
+#include "opencv2/core.hpp"
+#include "opencv2/highgui.hpp"
+#include "opencv2/opencv.hpp"
 
-TEST(CC_Labeling, No_Throw) {
-  std::vector<std::vector<std::int8_t>> A(3, std::vector<std::int8_t>(3));
-  A = {
-    {1, 0, 1},
-    {0, 1, 1},
-    {1, 1, 1}
-  };
-  ASSERT_NO_THROW(Labeling(A));
+std::vector<std::vector<std::int8_t>> Convert(const cv::Mat& image) {
+  std::vector<std::vector<std::int8_t>> result_matrix(
+      image.rows, std::vector<std::int8_t>(image.cols, 0));
+  for (int i = 0; i < image.rows; ++i)
+    for (int j = 0; j < image.cols; ++j) {
+      cv::Vec3b iter_color = image.at<cv::Vec3b>(i, j);
+      if (iter_color[0] == 0 && iter_color[1] == 0 && iter_color[2] == 0)
+        result_matrix[i][j] = 1;
+    }
+
+  return result_matrix;
 }
 
-TEST(CC_Labeling, Can_Lable_Pic) {
-  std::vector<std::vector<std::int8_t>> A(3, std::vector<std::int8_t>(3));
-  A = {
-    {1, 0, 1},
-    {0, 1, 1},
-    {1, 1, 1}
-  };
-  std::vector<std::vector<int>> res(3, std::vector<int>(3));
-  res = {
-    {1, 0, 2},
-    {0, 2, 2},
-    {2, 2, 2}
-  };
-  EXPECT_EQ(Labeling(A), res);
+void Show(const std::vector<std::vector<std::int32_t>>& v_image) {
+  cv::Mat image = cv::Mat::zeros(v_image.size(), v_image[0].size(), CV_8UC3);
+  for (std::int32_t i = 0; i < v_image.size(); ++i)
+    for (std::int32_t j = 0; j < v_image[0].size(); ++j) {
+      cv::Vec3b iter_color;
+      if (v_image[i][j] == 0) {
+        iter_color[0] = 255;
+        iter_color[1] = 255;
+        iter_color[2] = 255;
+      } else {
+        std::int32_t color = v_image[i][j];
+        iter_color[0] = (v_image[i][j] * 7) % 255;
+        iter_color[1] = (v_image[i][j] * 29) % 255;
+        iter_color[2] = (v_image[i][j] * 53) % 255;
+      }
+      image.at<cv::Vec3b>(i, j) = iter_color;
+    }
+
+  imshow("Display Window", image);
+  cv::waitKey(0);
 }
 
-TEST(CC_Labeling, Can_Lable_Another_Pic) {
-  std::vector<std::vector<std::int8_t>> A(4, std::vector<std::int8_t>(4));
-  A = {
-    {1, 1, 0, 1},
-    {0, 1, 1, 0},
-    {1, 0, 1, 1},
-    {0, 1, 1, 0}
-  };
-  std::vector<std::vector<int>> res(4, std::vector<int>(4));
-  res = {
-    {1, 1, 0, 2},
-    {0, 1, 1, 0},
-    {3, 0, 1, 1},
-    {0, 1, 1, 0}
-  };
-  EXPECT_EQ(Labeling(A), res);
-}
+std::int32_t main() {
+  std::string source = "C:\\Users\\igush\\Desktop\\Paint\\test.bmp";
+  cv::Mat Image = cv::imread(source, 1);
+  std::vector<std::vector<std::int8_t>> bin_matrix = Convert(Image);
 
-TEST(CC_Labeling, Can_Lable_Pic_With_Different_Size) {
-  std::vector<std::vector<std::int8_t>> A(4, std::vector<std::int8_t>(2));
-  A = {
-    {1, 1},
-    {0, 1},
-    {1, 0},
-    {1, 1}
-  };
-  std::vector<std::vector<int>> res(4, std::vector<int>(2));
-  res = {
-    {1, 1},
-    {0, 1},
-    {2, 0},
-    {2, 2}
-  };
-  EXPECT_EQ(Labeling(A), res);
-}
+  auto start = std::chrono::system_clock::now();
+  std::vector<std::vector<std::int32_t>> result = Labeling(bin_matrix);
+  auto end = std::chrono::system_clock::now();
+  std::chrono::duration<double, std::milli> a(end - start);
+  std::cout << "required time: " << a.count() / 1000;
 
-TEST(CC_Labeling, Can_Merge) {
-  std::vector<std::vector<int>> A(4, std::vector<int>(4));
-  A = {
-    {3, 3, 0, 0},
-    {0, 3, 0, 0},
-    {4, 3, 0, 0},
-    {0, 0, 0, 0}
-  };
-  std::vector<std::vector<int>> res(4, std::vector<int>(4));
-  res = {
-    {3, 3, 0, 0},
-    {0, 3, 0, 0},
-    {3, 3, 0, 0},
-    {0, 0, 0, 0}
-  };
-  Merge(&A, 4, 3, 4, 4);
-  EXPECT_EQ(A, res);
+  Show(result);
+  return 0;
 }
